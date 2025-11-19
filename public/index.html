@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .tool-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .tool-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .tool-section p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        textarea, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .result-content {
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .error {
+            color: #dc3545;
+            padding: 10px;
+            background: #ffe6e6;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Agentic AI Tools</h1>
+        <p class="subtitle">Powered by Google Gemini</p>
+        
+        <div class="tool-section">
+            <h2>📝 Text Summarizer</h2>
+            <p>Enter text to get a concise summary</p>
+            <textarea id="summarizerInput" placeholder="Paste your text here..."></textarea>
+            <button onclick="runSummarizer()">Summarize</button>
+            <div class="loading" id="summarizerLoading">Processing...</div>
+            <div class="error" id="summarizerError"></div>
+            <div class="result" id="summarizerResult">
+                <h3>Summary:</h3>
+                <div class="result-content" id="summarizerContent"></div>
+            </div>
+        </div>
+        
+        <div class="tool-section">
+            <h2>✅ Task Generator</h2>
+            <p>Describe your goal and get actionable tasks</p>
+            <input type="text" id="taskInput" placeholder="e.g., Build a landing page for my startup">
+            <button onclick="runTaskGenerator()">Generate Tasks</button>
+            <div class="loading" id="taskLoading">Processing...</div>
+            <div class="error" id="taskError"></div>
+            <div class="result" id="taskResult">
+                <h3>Generated Tasks:</h3>
+                <div class="result-content" id="taskContent"></div>
+            </div>
+        </div>
+        
+        <div class="tool-section">
+            <h2>💡 Quote Generator</h2>
+            <p>Get an inspiring quote</p>
+            <button onclick="runQuoteTool()">Get Quote</button>
+            <div class="loading" id="quoteLoading">Processing...</div>
+            <div class="error" id="quoteError"></div>
+            <div class="result" id="quoteResult">
+                <h3>Your Quote:</h3>
+                <div class="result-content" id="quoteContent"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
