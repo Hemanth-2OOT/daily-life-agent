@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { GoogleGenAI } = require('@google/genai');
+const Groq = require('groq-sdk');
 
 const app = express();
 const PORT = 5000;
@@ -10,9 +10,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-const ai = new GoogleGenAI({ 
-    apiKey: process.env.GEMINI_API_KEY || '' 
+const groq = new Groq({ 
+    apiKey: process.env.GROQ_API_KEY || '' 
 });
+
+async function callGroq(prompt) {
+    const response = await groq.chat.completions.create({
+        model: "llama3-70b-8192",
+        messages: [{ role: "user", content: prompt }],
+    });
+    return response.choices[0].message.content;
+}
 
 async function summarizerTool(text) {
     if (!text || text.trim() === '') {
@@ -23,12 +31,7 @@ async function summarizerTool(text) {
     
     const prompt = `Summarize the following text concisely while maintaining key points:\n\n${text}`;
     
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt
-    });
-    
-    return response.response.text() || 'Unable to generate summary';
+    return await callGroq(prompt);
 }
 
 async function taskGeneratorTool(goal) {
@@ -40,23 +43,13 @@ async function taskGeneratorTool(goal) {
     
     const prompt = `Given this goal: "${goal}", generate a clear, actionable list of tasks to accomplish it. Format the response as a numbered list.`;
     
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt
-    });
-    
-    return response.response.text() || 'Unable to generate tasks';
+    return await callGroq(prompt);
 }
 
 async function quoteTool() {
     const prompt = 'Generate an inspiring and motivational quote. Just provide the quote and its author.';
     
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt
-    });
-    
-    return response.response.text() || 'Unable to generate quote';
+    return await callGroq(prompt);
 }
 
 async function agentController(mode, input) {
