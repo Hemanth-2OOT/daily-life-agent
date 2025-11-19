@@ -8,14 +8,10 @@ async function callAgent(mode, input) {
             body: JSON.stringify({ mode, input })
         });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const data = await response.json();
         
-        if (data.error) {
-            throw new Error(data.error);
+        if (!response.ok || data.error) {
+            throw new Error(data.error || `HTTP error! status: ${response.status}`);
         }
         
         return data.result;

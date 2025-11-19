@@ -15,6 +15,12 @@ const ai = new GoogleGenAI({
 });
 
 async function summarizerTool(text) {
+    if (!text || text.trim() === '') {
+        const error = new Error('Text is required for summarization');
+        error.statusCode = 400;
+        throw error;
+    }
+    
     const prompt = `Summarize the following text concisely while maintaining key points:\n\n${text}`;
     
     const response = await ai.models.generateContent({
@@ -22,10 +28,16 @@ async function summarizerTool(text) {
         contents: prompt
     });
     
-    return response.text || 'Unable to generate summary';
+    return response.response.text() || 'Unable to generate summary';
 }
 
 async function taskGeneratorTool(goal) {
+    if (!goal || goal.trim() === '') {
+        const error = new Error('Goal is required for task generation');
+        error.statusCode = 400;
+        throw error;
+    }
+    
     const prompt = `Given this goal: "${goal}", generate a clear, actionable list of tasks to accomplish it. Format the response as a numbered list.`;
     
     const response = await ai.models.generateContent({
@@ -33,7 +45,7 @@ async function taskGeneratorTool(goal) {
         contents: prompt
     });
     
-    return response.text || 'Unable to generate tasks';
+    return response.response.text() || 'Unable to generate tasks';
 }
 
 async function quoteTool() {
@@ -44,7 +56,7 @@ async function quoteTool() {
         contents: prompt
     });
     
-    return response.text || 'Unable to generate quote';
+    return response.response.text() || 'Unable to generate quote';
 }
 
 async function agentController(mode, input) {
@@ -56,7 +68,9 @@ async function agentController(mode, input) {
         case 'quote':
             return await quoteTool();
         default:
-            throw new Error('Invalid mode');
+            const error = new Error('Invalid mode');
+            error.statusCode = 400;
+            throw error;
     }
 }
 
@@ -72,7 +86,9 @@ app.post('/agent', async (req, res) => {
         res.json({ result });
     } catch (error) {
         console.error('Agent error:', error);
-        res.status(500).json({ error: error.message });
+        
+        const statusCode = error.statusCode || 500;
+        res.status(statusCode).json({ error: error.message });
     }
 });
 
